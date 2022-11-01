@@ -1,4 +1,4 @@
-interface Audio {
+interface AudioSink {
     name: string,
     index: number,
     volume: number,
@@ -6,10 +6,14 @@ interface Audio {
 }
 
 interface Devices {
-    all: Audio[]
+    all: AudioSink[]
 }
 
-function change_audio_settings(settings: Audio): void {
+/**
+ * Will send a command back to the server with the desired settings.
+ * @param settings AudioSink with desired settings.
+ */
+function change_audio_settings(settings: AudioSink): void {
     const httpRequest = new XMLHttpRequest();
 
     httpRequest.onload = () => {
@@ -24,13 +28,17 @@ function change_audio_settings(settings: Audio): void {
 }
 
 // TODO make this async and wait on the 200 response
+/**
+ * Gets all the available audio sinks from the host's system.
+ * It will then populate the DOM with this information.
+ */
 function get_audio_clients() {
     const httpRequest = new XMLHttpRequest();
 
     httpRequest.onload = () => {    
         // once the 200 code is received add information to the page
-        if (httpRequest.status === 200) {            
-            console.log(httpRequest.status);
+        if (httpRequest.status === 200) {         
+            console.debug(httpRequest.status);
             var template: Devices = JSON.parse(httpRequest.responseText);
             create_selector(template);
         }        

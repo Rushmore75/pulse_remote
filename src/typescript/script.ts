@@ -1,31 +1,36 @@
 document.addEventListener("DOMContentLoaded", run)
 
+/**
+ * Entrypoint into running actual code.
+ */
 function run(): void {
     var element = document.createElement("p");
     element.innerHTML = "JavaScript checking in!";
     document.body.appendChild(element);
 
-    // change_vol(47, 65536, false);
     get_audio_clients();
 
 }
 
-
-// the function that gets called when devices are received 
+/**
+ * Creates the selection system for choosing the audio sink on
+ * the host to manipulate.
+ * @param devices Devices instance, which in turn, holds audio sinks.
+ */
 function create_selector(devices: Devices) {
     
-    console.log(devices);
+    // Create form for holding sinks
     var form: HTMLFormElement = document.createElement("form");
-        form.action = "i haven't decided how this value gets moved";
+        // form.action = "i haven't decided how this value gets moved"; // this is unneeded
         form.className = "form";
         form.id = "devices-form"
-    var select = document.createElement("select");
-        select.innerHTML = "Select audio output to manipulate\n" // TODO this does nothing
-        select.className = "select"
+    var selectElement = document.createElement("select");
+        // select.innerHTML = "Select audio output to manipulate\n" // TODO this does nothing
+        selectElement.className = "select"
 
     // hold all the device's options elements
     const options: HTMLOptionElement[] = [];
-    // create options from devices
+    // populate options from devices
     devices.all.forEach(device => {
         var option = document.createElement("option");
         option.innerHTML = device.name;
@@ -33,21 +38,25 @@ function create_selector(devices: Devices) {
         option.className = "option";
         options.push(option)
     });
+
     // append all available devices to the select element 
     options.forEach(i => {
-        select.appendChild(i);
+        selectElement.appendChild(i);
     })
 
     // finally append everything to DOM
-    document.body.appendChild(form).appendChild(select);
+    document.body.appendChild(form).appendChild(selectElement);
     
 
-    // Onchange callback
+    // Callback // FIXME
     form.onchange = (event) => {
-        var name = (event.target as HTMLSelectElement)?.value;
-        console.log(name);
+        let name = (event.target as HTMLSelectElement)?.value;
+        console.debug("Selecting: " + name);
         devices.all.forEach(i => {
             if (i.name === name) {
+                // remove old control panel (if present)
+                let old = document.getElementById("controls-div");
+                old?.parentNode?.removeChild(old);
                 // populate interface with controls
                 create_controller(i);
             }
@@ -55,11 +64,13 @@ function create_selector(devices: Devices) {
     }
 }
 
-function create_controller(device: Audio) {
-
+/**
+ * Populate the DOM with the givin device's options.
+ * @param device Singular audio sink to create a controller for.
+ */
+function create_controller(device: AudioSink) {
     /*
     Create both the volume slider and a mute button.
-
     |> top div
     |   |> slider div
     |   |  |> mute div
@@ -67,9 +78,16 @@ function create_controller(device: Audio) {
     |   | volume slide
     */
 
-    var top_div = document.createElement("div");
+    let top_div = document.createElement("div");
+    top_div.id = "controls-div";
 
-    function create_mute_button(device: Audio): HTMLDivElement {
+    /**
+     * Only used here, once. Mostly just to keep the function cleaner.
+     * Contains the callback for muting audio.
+     * @param device 
+     * @returns Div element with the mute button inside.
+     */
+    function create_mute_button(device: AudioSink): HTMLDivElement {
         // setting up the mute button
         var mute_div = document.createElement("div");
 
@@ -79,10 +97,11 @@ function create_controller(device: Audio) {
         var button = document.createElement("button");
         button.innerHTML = "MUTE";
         button.className = device.mute ? muted_class : unmuted_class; 
-        // Call back
+        
+        // Callback
         button.onclick = () => {
             device.mute = device.mute ? false : true; // flip flop
-            button.className = device.mute ? muted_class : unmuted_class;
+            button.className = device.mute ? muted_class : unmuted_class; // flip flop the class so the css changes.
             change_audio_settings(device);
         }
 
@@ -90,7 +109,14 @@ function create_controller(device: Audio) {
         mute_div.appendChild(button);
         return mute_div;
     }
-    function create_volume_slider(device: Audio): HTMLDivElement {
+    /**
+     * Same as when creating the mute button, just for cleanliness.
+     * Contains volume slider callback. Also creates the mute button
+     * and appends that to it's self.
+     * @param device 
+     * @returns The div element with the volume slider & mute button in it.
+     */
+    function create_volume_slider(device: AudioSink): HTMLDivElement {
         // create all the elements and set their metadata
         // for the volume slider
         var slider_div = document.createElement("div");
@@ -103,9 +129,9 @@ function create_controller(device: Audio) {
         input.className = "volume-slider"
         slider_div.appendChild(input);
 
+        // callback
         input.onchange = (event) => {
             var volume = (event.target as HTMLSelectElement)?.value;
-            console.log(volume);
             device.volume = parseInt(volume);
             change_audio_settings(device);
         }
@@ -115,7 +141,6 @@ function create_controller(device: Audio) {
         return slider_div;
     }
 
-    top_div.appendChild(create_volume_slider(device));    
-
+    top_div.appendChild(create_volume_slider(device));
     document.body.appendChild(top_div);
 }

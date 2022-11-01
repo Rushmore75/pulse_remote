@@ -3,14 +3,10 @@ pub mod clients;
 use clients::Outputs;
 use libpulse_binding::volume::Volume;
 use pulsectl::controllers::{SinkController, DeviceControl};
-use rocket::{fs::FileServer, serde::{json::Json}, routes, get, post};
+use rocket::{fs::FileServer, serde::{json::Json}, routes, get, post, log::private::debug};
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
-
-    get_audio_clients();
-
-    // exit(0);
 
     let _rocket = rocket::build()
         .mount("/", FileServer::from("www/"))
@@ -28,7 +24,7 @@ fn get_audio_clients() -> Json<Outputs> {
     let mut outputs = clients::Outputs::new();
     for i in &devices {
         let sink = clients::Sink::new(&i.description, i.index, i.mute, i.volume.avg().0);
-        println!("{:?}", &sink);
+        debug!("{:?}", &sink);
         outputs.add(sink);
     }    
     Json(outputs)
