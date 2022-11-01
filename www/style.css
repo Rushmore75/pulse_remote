@@ -1,0 +1,57 @@
+body {
+    background-color: grey;
+}
+
+.option {
+    background-color: white;
+    color: black;
+}
+
+.form {
+    padding: 1%;
+    background-color: cadetblue;
+}
+
+.select {
+    background-color: burlywood;
+}
+
+.slider-div {
+    background-color: cadetblue;
+    padding: 1%;
+}
+
+.volume-slider {
+    width: 50%;
+    height: 4px;
+    background: burlywood;
+    outline: none;
+  }
+  
+.volume-slider::-moz-range-thumb {
+    width: 40px;
+    height: 20px;
+    background: brown;
+    cursor: pointer;
+  }
+
+
+.mute-muted {
+    background-color: red;
+    color: white;
+
+    border-width: 3px;
+    border-radius: 1px;
+    border-style: ridge;
+    border-color: black;
+}
+
+.mute-un-muted mute-muted {
+    background-color: white;
+    color: red;
+
+    border-width: 3px;
+    border-radius: 1px;
+    border-style: ridge;
+    border-color: black; 
+}
