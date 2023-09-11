@@ -2,7 +2,7 @@
 Control your pulseaudio system remotely via a website. This (currently) allows you to change volume and mute selected audio sink.
 
 ## Setup
-Just run the server built in Rust. It will provide a link to the ip & port of the server.
+Just run the server built in Rust. It will provide a link to the ip & port of the server. (Wouldn't use in a public environment for security reasons)
 
 ## Develop
 Server is written in Rust using Rocket.rs. Very simple code.
